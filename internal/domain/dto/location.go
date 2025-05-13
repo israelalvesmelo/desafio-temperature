@@ -7,5 +7,9 @@ type LocationInput struct {
 type LocationOutput struct {
 	Localidade string `json:"localidade"`
 
-	Erro bool `json:"erro"`
+	Erro string `json:"erro"`
+}
+
+func (l LocationOutput) HasError() bool {
+	return l.Erro != ""
 }

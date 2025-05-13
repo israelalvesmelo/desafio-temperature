@@ -36,14 +36,13 @@ func (uc *GetTemperatureUseCase) Execute(ctx context.Context, cep string) (*dto.
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("temperature celsius: ", temperatureCelsius)
+	fmt.Println("temperature celsius: ", *temperatureCelsius)
 	temperature := entity.NewTemperature(*temperatureCelsius)
 
 	return &dto.TemperatureOutput{
-		Location: location.Localidade,
-		TempC:    temperature.Celsius(),
-		TempF:    temperature.Fahrenheit(),
-		TempK:    temperature.Kelvin(),
+		TempC: temperature.Celsius(),
+		TempF: temperature.Fahrenheit(),
+		TempK: temperature.Kelvin(),
 	}, nil
 
 }

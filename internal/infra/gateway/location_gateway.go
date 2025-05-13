@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -67,8 +66,8 @@ func (g LocationGatewayImpl) GetLocation(ctx context.Context, cep string) (*enti
 		return nil, unmErr
 	}
 
-	if location.Erro {
-		return nil, errors.New("can not found zipcode")
+	if location.HasError() {
+		return nil, entity.ErrZipcodeNotFound
 	}
 
 	return &entity.Location{

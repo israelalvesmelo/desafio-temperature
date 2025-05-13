@@ -2,9 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 
+	"github.com/israelalvesmelo/desafio-temperature/internal/domain/entity"
 	"github.com/israelalvesmelo/desafio-temperature/internal/domain/usecase"
 )
 
@@ -20,16 +23,14 @@ func NewTemperatureHandler(useCase *usecase.GetTemperatureUseCase) *TemperatureH
 
 func (h *TemperatureHandler) GetWeather(w http.ResponseWriter, r *http.Request) {
 	cep := r.URL.Query().Get("cep")
-	if cep == "" {
-		fmt.Println("params CEP is required")
-		Error(w, "params CEP is required", http.StatusBadRequest)
+	if err := h.CEPValidation(cep); err != nil {
+		h.handlerError(w, err)
 		return
 	}
 
 	weather, err := h.useCase.Execute(r.Context(), cep)
 	if err != nil {
-		fmt.Println("Error:", err)
-		Error(w, err.Error(), http.StatusInternalServerError)
+		h.handlerError(w, err)
 		return
 	}
 
@@ -38,4 +39,29 @@ func (h *TemperatureHandler) GetWeather(w http.ResponseWriter, r *http.Request) 
 		Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *TemperatureHandler) CEPValidation(cep string) error {
+	re := regexp.MustCompile(`^\d{5}-\d{3}$`)
+	if !re.MatchString(cep) {
+		return entity.ErrZipcodeNotValid
+	}
+
+	return nil
+}
+
+func (h *TemperatureHandler) handlerError(w http.ResponseWriter, err error) {
+	fmt.Println("error:", err)
+
+	switch {
+	case errors.Is(err, entity.ErrZipcodeNotValid):
+		Error(w, entity.ErrZipcodeNotValid.Error(), http.StatusUnprocessableEntity)
+		return
+	case errors.Is(err, entity.ErrZipcodeNotFound):
+		Error(w, entity.ErrZipcodeNotFound.Error(), http.StatusNotFound)
+		return
+	case err != nil:
+		Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
