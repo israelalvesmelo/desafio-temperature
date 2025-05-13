@@ -1,19 +1,14 @@
 version: '3.7'
 
 services:
-  go-app:
+  temperature-app:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./:/app
-    container_name: go-app
+    container_name: temperature-app
     ports:
       - "8080:8080"
     networks:
       - temperature
-    depends_on:
-      redis:
-        condition: service_healthy
 networks:
   temperature:
