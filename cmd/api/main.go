@@ -14,7 +14,7 @@ import (
 func main() {
 	// Load config
 	var cfg config.Config
-	viperCfg := config.NewViper("env")
+	viperCfg := config.NewViper("../../env")
 	viperCfg.ReadViper(&cfg)
 
 	// Create gateway
@@ -22,11 +22,10 @@ func main() {
 	temperatureGateway := gateway.NewTemperatureGateway(&cfg.Temperature)
 
 	// Create use case
-	useCase := usecase.NewGetWeatherUseCase(locationGateway, temperatureGateway)
+	useCase := usecase.NewGetTemperatureUseCase(locationGateway, temperatureGateway)
 
 	// Create handler
-
-	handler := handler.NewWeatherHandler(useCase)
+	handler := handler.NewTemperatureHandler(useCase)
 
 	// Create server
 	server := webserver.NewWebServer(fmt.Sprintf(":%s", cfg.App.Port))
